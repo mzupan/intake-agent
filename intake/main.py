@@ -40,8 +40,8 @@ class MyDaemon(Daemon):
         except (KeyboardInterrupt, SystemExit):
             poller.shutdown()
 
-if __name__ == "__main__":
 
+def main():
     daemon = MyDaemon('/var/run/intake.pid')
     if len(sys.argv) == 2:
         if 'start' == sys.argv[1]:
@@ -66,3 +66,9 @@ if __name__ == "__main__":
     else:
         print "usage: %s start|stop|restart|status|debug" % sys.argv[0]
         sys.exit(2)
+        
+#
+# should never get called
+#
+if __name__ == "__main__":
+    main()

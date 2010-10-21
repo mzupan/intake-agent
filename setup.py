@@ -2,18 +2,18 @@
 
 from setuptools import setup, find_packages
 
-files = ["gitsync/*"]
+files = ["intake/*"]
 
 setup(
-    name = 'InTake',
+    name = 'intake-agent',
     version = "0.1",
     description = "The InTake agent that handles all the log sending",
     author = "Mike Zupan",
-    author_email = "mzupan@shopopensky.com",
+    author_email = "mike@zcentric.com",
     packages = find_packages(),
     entry_points={
         'console_scripts': [
-            'intake = intake.main:main',
+            'intake-agent = intake.main:main',
         ]
     },
 )
