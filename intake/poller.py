@@ -91,8 +91,16 @@ class Poller:
                 thread = TailThread(self.config, log)
                 thread.start()
                 self.threads.append(thread)
-                   
-        s.enter(300, 1, self.runChecks, (s, False))
+        
+        #
+        # clean up the threads if we no longer need to tail any logs
+        #
+        for thread in self.threads:
+            if thread.log not in j:
+                thread.done = True
+                self.threads.remove(thread)
+        
+        s.enter(30, 1, self.runChecks, (s, False))
 
     def shutdown(self):
         for thread in self.threads:

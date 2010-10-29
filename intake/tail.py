@@ -21,16 +21,19 @@ headers = {
 class TailThread(threading.Thread):
     def __init__(self, config, log):
         threading.Thread.__init__(self)
-        
         self.config = config
         self.log = abspath(log)
         self.done = False
         
-        self.f = open(self.log, "r")
-        file_len = stat(self.log)[ST_SIZE]
-        self.f.seek(file_len)
-        self.pos = self.f.tell()
-        
+        try:
+            self.f = open(self.log, "r")
+            file_len = stat(self.log)[ST_SIZE]
+            self.f.seek(file_len)
+            self.pos = self.f.tell()
+            
+            self.dorun = True
+        except:
+            self.dorun = False
         
     def _reset(self):
         self.f.close()
@@ -38,26 +41,27 @@ class TailThread(threading.Thread):
         self.pos = self.f.tell()
     
     def run(self):
-        while True:
-            self.pos = self.f.tell()
-            line = self.f.readlines()
+        if self.dorun:
+            while True:
+                self.pos = self.f.tell()
+                line = self.f.readlines()
 
-            if not line:
-                if stat(self.log)[ST_SIZE] < self.pos:
-                    self._reset()
+                if not line:
+                    if stat(self.log)[ST_SIZE] < self.pos:
+                        self._reset()
+                    else:
+                        time.sleep(5)
+                        self.f.seek(self.pos)
                 else:
-                    time.sleep(5)
-                    self.f.seek(self.pos)
-            else:
-                j = json.dumps({
-                                'log': self.log,
-                                'line': line
-                                })
-
-                postData = urllib.urlencode({'action': 'add', 'server': self.config['id'], 'log': j})
-                request = urllib2.Request(self.config['api']['url'], postData, headers)
-                response = urllib2.urlopen(request)
-        
+                    j = json.dumps({
+                                    'log': self.log,
+                                    'line': line
+                                    })
+    
+                    postData = urllib.urlencode({'action': 'add', 'server': self.config['id'], 'log': j})
+                    request = urllib2.Request(self.config['api']['url'], postData, headers)
+                    response = urllib2.urlopen(request)
             
-            if self.done:
-                break
+                
+                if self.done:
+                    break
