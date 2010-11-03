@@ -1,0 +1,50 @@
+#!/bin/bash
+#
+# Init script for the python daemon to talk to intake
+#
+# chkconfig: - 85 15
+# description: Init script for the python daemon to talk to intake
+# processname: intake-agent
+# pidfile: /var/run/intake-agent.pid
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+
+prog=intake-agent
+RETVAL=0
+
+start() {
+        echo -n $"Starting $prog: "
+        daemon /usr/bin/intake-agent start 
+        RETVAL=$?
+        echo
+
+        return $RETVAL
+}
+stop() {
+        echo -n $"Stopping $prog: "
+        daemon /usr/bin/intake-agent stop
+        RETVAL=$?
+        echo
+        [ $RETVAL = 0 ] && rm -f /var/run/intake-agent.pid
+}
+
+# See how we were called.
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  restart)
+	stop
+  	start
+  	;;
+  *)
+        echo $"Usage: $prog {start|stop|restart}"
+        exit 1
+esac
+
+exit $RETVAL
