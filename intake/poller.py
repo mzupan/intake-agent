@@ -50,16 +50,27 @@ class Poller:
         #
         # encoding serverid
         #
-        from socket import gethostname
-        import uuid
+        self.config['id'] = c.get('API', 'uuid')
+        if self.config['id'] == "":
+            from socket import gethostname
+            import uuid
+    
+            self.hostname = gethostname()
+            self.id = uuid.uuid3(uuid.NAMESPACE_DNS, self.hostname)
 
-        self.hostname = gethostname()
-        self.id = uuid.uuid3(uuid.NAMESPACE_DNS, self.hostname)
+            #
+            # write it to the config now
+            #
+            c.set('API', 'uuid', self.id)
+            self.config['id'] = str(self.id)
+            
+            with open('/etc/intake/config.conf', 'wb') as configfile:
+                c.write(configfile)
 
         #
         # setting up the config dict
         #
-        self.config['id'] = str(self.id)
+        #
         self.config['logs'] = []
 
         #
